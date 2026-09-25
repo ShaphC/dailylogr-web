@@ -278,7 +278,12 @@ function DocumentationRow({
       formatTime(capture.start_time) ?? formatTime(capture.created_at);
 
     return (
-      <div className={`p-4 sm:p-5 ${showBorder ? "border-t" : ""}`}>
+      <Link
+        href={`/document/${capture.id}`}
+        className={`group block p-4 transition-colors hover:bg-accent/40 sm:p-5 ${
+          showBorder ? "border-t" : ""
+        }`}
+      >
         <div className="flex gap-4">
           <div className="w-16 shrink-0 pt-0.5">
             <p className="text-xs text-muted-foreground">{time}</p>
@@ -325,8 +330,10 @@ function DocumentationRow({
               </p>
             )}
           </div>
+
+          <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" />
         </div>
-      </div>
+      </Link>
     );
   }
 
