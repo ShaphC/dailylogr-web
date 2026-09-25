@@ -1,15 +1,3 @@
-export type CaptureSource = "MANUAL" | "VOICE" | string;
-
-export type CaptureType =
-  | "WORK_DONE"
-  | "CLIENT_VISIT"
-  | "TRAVEL"
-  | "EQUIPMENT"
-  | "EXPENSE"
-  | "GENERAL";
-
-export type DocumentationStatus = "UNCLASSIFIED" | "INCOMPLETE" | "COMPLETE";
-
 export interface DocCapture {
   id: string;
   user_id: string;
@@ -20,38 +8,13 @@ export interface DocCapture {
   company_id: string | null;
   person_name: string | null;
   text: string | null;
-  source: CaptureSource;
+  source: string;
   entry_id: string | null;
   created_at: string;
   updated_at: string;
   client_organization: string | null;
   capture_type: string | null;
   type_details: CaptureTypeDetails | null;
-}
-
-export interface CaptureTypeDetails {
-  startingLocation?: string;
-  destination?: string;
-  visitDetails?: string;
-
-  departureTime?: string;
-  arrivalTime?: string;
-  returnDepartureTime?: string;
-  returnArrivalTime?: string;
-  mileage?: number | string;
-  externalReference?: string;
-
-  equipmentName?: string;
-  quantity?: number | string;
-  action?: string;
-  location?: string;
-  details?: string;
-
-  amount?: number | string;
-  description?: string;
-  receiptReference?: string;
-
-  [key: string]: unknown;
 }
 
 export interface DocCompany {
@@ -75,6 +38,42 @@ export interface DocEntry {
   created_at: string;
   updated_at: string;
 }
+
+export interface CaptureTypeDetails {
+  startingLocation?: string;
+  destination?: string;
+  visitDetails?: string;
+
+  departureTime?: string;
+  arrivalTime?: string;
+  returnDepartureTime?: string;
+  returnArrivalTime?: string;
+
+  mileage?: number | string;
+  externalReference?: string;
+
+  equipmentName?: string;
+  quantity?: number | string;
+  action?: string;
+  location?: string;
+  details?: string;
+
+  amount?: number | string;
+  description?: string;
+  receiptReference?: string;
+
+  [key: string]: unknown;
+}
+
+export type CaptureType =
+  | "WORK_DONE"
+  | "CLIENT_VISIT"
+  | "TRAVEL"
+  | "EQUIPMENT"
+  | "EXPENSE"
+  | "GENERAL";
+
+export type DocumentationStatus = "UNCLASSIFIED" | "INCOMPLETE" | "COMPLETE";
 
 export interface DocumentationItem {
   id: string;

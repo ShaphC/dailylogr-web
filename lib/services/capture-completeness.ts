@@ -4,14 +4,16 @@ import type {
   DocCapture,
 } from "@/lib/types";
 
-export function getMissingFields(
-  capture: Pick<DocCapture, "capture_type" | "type_details">,
-): string[] {
+function getDetails(capture: DocCapture): CaptureTypeDetails {
+  return (capture.type_details ?? {}) as CaptureTypeDetails;
+}
+
+export function getMissingFields(capture: DocCapture): string[] {
   if (!capture.capture_type) {
     return [];
   }
 
-  const details = (capture.type_details ?? {}) as CaptureTypeDetails;
+  const details = getDetails(capture);
 
   switch (capture.capture_type) {
     case "CLIENT_VISIT": {
@@ -84,19 +86,19 @@ export function getMissingFields(
 }
 
 export function getDocumentationStatus(
-  capture: Pick<DocCapture, "capture_type" | "type_details">,
+  capture: DocCapture,
 ): DocumentationStatus {
   if (!capture.capture_type) {
     return "UNCLASSIFIED";
   }
 
-  const missingFields = getMissingFields(capture);
-
-  return missingFields.length > 0 ? "INCOMPLETE" : "COMPLETE";
+  return getMissingFields(capture).length > 0 ? "INCOMPLETE" : "COMPLETE";
 }
 
-export function isCaptureComplete(
-  capture: Pick<DocCapture, "capture_type" | "type_details">,
-): boolean {
+export function isCaptureComplete(capture: DocCapture) {
   return getDocumentationStatus(capture) === "COMPLETE";
+}
+
+export function hasMissingImportantInformation(capture: DocCapture) {
+  return getMissingFields(capture).length > 0;
 }
