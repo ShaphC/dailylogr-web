@@ -184,6 +184,33 @@ export async function updateManualCaptureAction(formData: FormData) {
   redirect(`/document/${captureId}`);
 }
 
+export async function createVoiceCaptureAction(formData: FormData) {
+  const text = nullableString(formData.get("text"));
+
+  if (!text) {
+    throw new Error("Transcript is required.");
+  }
+
+  const captureDate = nullableString(formData.get("capture_date"));
+
+  if (!captureDate) {
+    throw new Error("Capture date is required.");
+  }
+
+  const startTime = nullableString(formData.get("start_time"));
+
+  await createCapture({
+    capture_date: captureDate,
+    start_time: startTime,
+    text,
+    source: "VOICE",
+  });
+
+  revalidateDocumentationPaths();
+
+  redirect("/");
+}
+
 export async function deleteCaptureAction(formData: FormData) {
   const captureId = nullableString(formData.get("capture_id"));
 

@@ -38,25 +38,26 @@ export default function DocumentPage() {
           </div>
         </Link>
 
-        <div className="rounded-2xl border bg-card p-6 opacity-60">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+        <Link
+          href="/document/record"
+          className="group rounded-2xl border bg-card p-6 transition-colors hover:bg-accent/40"
+        >
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <Mic className="h-5 w-5" />
           </div>
 
-          <div className="mt-5">
-            <div className="flex items-center gap-2">
+          <div className="mt-5 flex items-center justify-between">
+            <div>
               <h2 className="font-semibold">Record</h2>
 
-              <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                Next
-              </span>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Speak and capture a live transcript.
+              </p>
             </div>
 
-            <p className="mt-1 text-sm text-muted-foreground">
-              Speak and capture a live transcript.
-            </p>
+            <ArrowRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
           </div>
-        </div>
+        </Link>
       </div>
     </div>
   );
