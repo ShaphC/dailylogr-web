@@ -132,7 +132,7 @@ export function HistoryFilters({
     Boolean(toDate);
 
   return (
-    <div className="space-y-4">
+    <div>
       <div className="grid gap-3 sm:grid-cols-3">
         <FilterSelect label="Date" value={period} onChange={changePeriod}>
           {periods.map((item) => (
@@ -178,14 +178,14 @@ export function HistoryFilters({
       </div>
 
       {period === "custom" && (
-        <div className="rounded-xl border bg-background p-4">
-          <div className="mb-4 flex items-center gap-2">
-            <CalendarDays className="h-4 w-4 text-muted-foreground" />
+        <div className="mt-4 rounded-xl border bg-muted/40 p-4">
+          <div className="flex items-center gap-2">
+            <CalendarDays className="size-4 text-muted-foreground" />
 
-            <p className="text-sm font-medium">Custom date range</p>
+            <p className="text-sm font-semibold">Custom date range</p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <label className="block">
               <span className="mb-2 block text-xs font-medium text-muted-foreground">
                 From
@@ -200,7 +200,7 @@ export function HistoryFilters({
                     from: event.target.value || null,
                   });
                 }}
-                className="h-11 w-full rounded-xl border bg-card px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className={dateClassName}
               />
             </label>
 
@@ -218,13 +218,13 @@ export function HistoryFilters({
                     to: event.target.value || null,
                   });
                 }}
-                className="h-11 w-full rounded-xl border bg-card px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className={dateClassName}
               />
             </label>
           </div>
 
           {!fromDate && !toDate && (
-            <p className="mt-3 text-xs text-muted-foreground">
+            <p className="mt-3 text-xs leading-5 text-muted-foreground">
               Choose a start date, an end date, or both.
             </p>
           )}
@@ -237,9 +237,9 @@ export function HistoryFilters({
           onClick={() => {
             router.push("/history");
           }}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+          className="mt-4 inline-flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
         >
-          <X className="h-3.5 w-3.5" />
+          <X className="size-3.5" />
           Clear filters
         </button>
       )}
@@ -259,24 +259,27 @@ function FilterSelect({
   children: ReactNode;
 }) {
   return (
-    <label className="block">
-      <span className="mb-2 block text-xs font-medium text-muted-foreground">
+    <label className="relative block min-h-16 rounded-xl border bg-card px-3 py-2.5">
+      <span className="block text-[10px] font-medium text-muted-foreground">
         {label}
       </span>
 
-      <div className="relative">
+      <div className="relative mt-1">
         <select
           value={value}
           onChange={(event) => {
             onChange(event.target.value);
           }}
-          className="h-11 w-full appearance-none rounded-xl border bg-card px-3 pr-9 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+          className="h-6 w-full cursor-pointer appearance-none bg-transparent pr-7 text-[13px] font-bold outline-none"
         >
           {children}
         </select>
 
-        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <ChevronDown className="pointer-events-none absolute right-0 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
       </div>
     </label>
   );
 }
+
+const dateClassName =
+  "h-12 w-full rounded-xl border bg-card px-3.5 text-sm outline-none transition-colors focus:border-foreground";

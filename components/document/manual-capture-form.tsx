@@ -15,13 +15,34 @@ interface ManualCaptureFormProps {
 }
 
 const captureTypes = [
-  { value: "", label: "Not classified" },
-  { value: "WORK_DONE", label: "Work Done" },
-  { value: "CLIENT_VISIT", label: "Client Visit" },
-  { value: "TRAVEL", label: "Travel" },
-  { value: "EQUIPMENT", label: "Equipment" },
-  { value: "EXPENSE", label: "Expenses" },
-  { value: "GENERAL", label: "General" },
+  {
+    value: "",
+    label: "Not classified",
+  },
+  {
+    value: "WORK_DONE",
+    label: "Work Done",
+  },
+  {
+    value: "CLIENT_VISIT",
+    label: "Client Visit",
+  },
+  {
+    value: "TRAVEL",
+    label: "Travel",
+  },
+  {
+    value: "EQUIPMENT",
+    label: "Equipment",
+  },
+  {
+    value: "EXPENSE",
+    label: "Expenses",
+  },
+  {
+    value: "GENERAL",
+    label: "General",
+  },
 ];
 
 const equipmentActions = [
@@ -188,7 +209,7 @@ export function ManualCaptureForm({
   return (
     <form
       action={isEditing ? updateManualCaptureAction : createManualCaptureAction}
-      className="space-y-8"
+      className="mx-auto max-w-4xl"
     >
       {capture && <input type="hidden" name="capture_id" value={capture.id} />}
 
@@ -207,213 +228,224 @@ export function ManualCaptureForm({
       <header>
         <Link
           href={cancelHref}
-          className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="size-4" />
 
           {isEditing ? "Documentation" : "Document"}
         </Link>
 
-        <h1 className="text-2xl font-semibold tracking-tight">
+        <h1 className="mt-5 text-3xl font-bold tracking-tight">
           {isEditing ? "Edit documentation" : "Manual capture"}
         </h1>
 
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-1 text-[15px] text-muted-foreground">
           {isEditing
             ? "Update anything that needs more detail."
             : "Write down what happened. Everything else is optional."}
         </p>
       </header>
 
-      <section className="space-y-5 rounded-2xl border bg-card p-5 sm:p-6">
-        <div>
-          <h2 className="font-medium">Context</h2>
+      <div className="mt-8 space-y-4">
+        <section className="rounded-2xl border bg-card p-5 sm:p-6">
+          <SectionHeader
+            title="Context"
+            description="Organize where this documentation belongs."
+          />
 
-          <p className="mt-1 text-sm text-muted-foreground">
-            Organize where this work belongs.
-          </p>
-        </div>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <Field label="Company">
+              <SelectWrapper>
+                <select
+                  name="company_id"
+                  defaultValue={capture?.company_id ?? ""}
+                  className={selectClassName}
+                >
+                  <option value="">No company</option>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Company">
-            <SelectWrapper>
-              <select
-                name="company_id"
-                defaultValue={capture?.company_id ?? ""}
-                className={selectClassName}
-              >
-                <option value="">No company</option>
+                  {companies.map((company) => (
+                    <option key={company.id} value={company.id}>
+                      {company.name}
+                    </option>
+                  ))}
+                </select>
+              </SelectWrapper>
+            </Field>
 
-                {companies.map((company) => (
-                  <option key={company.id} value={company.id}>
-                    {company.name}
-                  </option>
-                ))}
-              </select>
-            </SelectWrapper>
-          </Field>
+            <Field label="Type">
+              <SelectWrapper>
+                <select
+                  name="capture_type"
+                  value={captureType}
+                  onChange={(event) => {
+                    setCaptureType(event.target.value);
+                  }}
+                  className={selectClassName}
+                >
+                  {captureTypes.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+              </SelectWrapper>
+            </Field>
+          </div>
 
-          <Field label="Type">
-            <SelectWrapper>
-              <select
-                name="capture_type"
-                value={captureType}
-                onChange={(event) => {
-                  setCaptureType(event.target.value);
-                }}
-                className={selectClassName}
-              >
-                {captureTypes.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
-            </SelectWrapper>
-          </Field>
-        </div>
+          <TypeFields captureType={captureType} details={details} />
+        </section>
 
-        <TypeFields captureType={captureType} details={details} />
-      </section>
-
-      <section className="rounded-2xl border bg-card p-5 sm:p-6">
-        <label htmlFor="text" className="text-sm font-medium">
-          What happened?
-        </label>
-
-        <textarea
-          id="text"
-          name="text"
-          required
-          autoFocus={!isEditing}
-          rows={7}
-          defaultValue={capture?.text ?? ""}
-          placeholder="Document what happened..."
-          className="mt-3 w-full resize-none rounded-xl border bg-background px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-        />
-      </section>
-
-      <section className="space-y-5 rounded-2xl border bg-card p-5 sm:p-6">
-        <div>
-          <h2 className="font-medium">When</h2>
-
-          <p className="mt-1 text-sm text-muted-foreground">
-            Add timing if it's useful.
-          </p>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Date">
-            <input
-              type="date"
-              name="capture_date"
+        <section className="rounded-2xl border bg-card p-5 sm:p-6">
+          <Field label="What happened?" prominent>
+            <textarea
+              id="text"
+              name="text"
               required
-              value={captureDate}
-              onChange={(event) => {
-                setCaptureDate(event.target.value);
-              }}
-              className={inputClassName}
+              autoFocus={!isEditing}
+              rows={8}
+              defaultValue={capture?.text ?? ""}
+              placeholder="Document what happened..."
+              className="mt-1 w-full resize-none rounded-xl border bg-card px-4 py-3 text-base leading-6 outline-none transition-colors placeholder:text-muted-foreground focus:border-foreground"
             />
           </Field>
+        </section>
 
-          <Field label="Duration">
-            <input
-              type="number"
-              name="duration_minutes"
-              min="0"
-              value={calculatedDuration}
-              onChange={(event) => {
-                setDuration(event.target.value);
+        <section className="rounded-2xl border bg-card p-5 sm:p-6">
+          <SectionHeader
+            title="When"
+            description="Add timing if it's useful."
+          />
 
-                if (!event.target.value) {
-                  setEndTime("");
-                }
-              }}
-              readOnly={Boolean(startTime && endTime)}
-              placeholder="Minutes"
-              className={inputClassName}
-            />
-          </Field>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <Field label="Date">
+              <input
+                type="date"
+                name="capture_date"
+                required
+                value={captureDate}
+                onChange={(event) => {
+                  setCaptureDate(event.target.value);
+                }}
+                className={inputClassName}
+              />
+            </Field>
 
-          <Field label="Start time">
-            <input
-              type="time"
-              value={startTime}
-              onChange={(event) => {
-                setStartTime(event.target.value);
-              }}
-              className={inputClassName}
-            />
-          </Field>
+            <Field label="Duration">
+              <input
+                type="number"
+                name="duration_minutes"
+                min="0"
+                value={calculatedDuration}
+                onChange={(event) => {
+                  setDuration(event.target.value);
 
-          <Field label="End time">
-            <input
-              type="time"
-              value={endTime}
-              onChange={(event) => {
-                setEndTime(event.target.value);
-              }}
-              className={inputClassName}
-            />
-          </Field>
-        </div>
+                  if (!event.target.value) {
+                    setEndTime("");
+                  }
+                }}
+                readOnly={Boolean(startTime && endTime)}
+                placeholder="Minutes"
+                className={inputClassName}
+              />
+            </Field>
 
-        {startTime && endTime && (
-          <p className="text-xs text-muted-foreground">
-            Duration calculated automatically: {calculatedDuration} minutes
-            {endNextDay ? " · ends the next day" : ""}
-          </p>
-        )}
-      </section>
+            <Field label="Start time">
+              <input
+                type="time"
+                value={startTime}
+                onChange={(event) => {
+                  setStartTime(event.target.value);
+                }}
+                className={inputClassName}
+              />
+            </Field>
 
-      <section className="space-y-5 rounded-2xl border bg-card p-5 sm:p-6">
-        <div>
-          <h2 className="font-medium">Client Info</h2>
+            <Field label="End time">
+              <input
+                type="time"
+                value={endTime}
+                onChange={(event) => {
+                  setEndTime(event.target.value);
+                }}
+                className={inputClassName}
+              />
+            </Field>
+          </div>
 
-          <p className="mt-1 text-sm text-muted-foreground">
-            Optional details about the client this was for.
-          </p>
-        </div>
+          {startTime && endTime && (
+            <div className="mt-4 rounded-xl bg-muted px-4 py-3">
+              <p className="text-xs leading-5 text-muted-foreground">
+                Duration calculated automatically: {calculatedDuration} minutes
+                {endNextDay ? " · ends the next day" : ""}
+              </p>
+            </div>
+          )}
+        </section>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Client">
-            <input
-              type="text"
-              name="person_name"
-              defaultValue={capture?.person_name ?? ""}
-              placeholder="Optional"
-              className={inputClassName}
-            />
-          </Field>
+        <section className="rounded-2xl border bg-card p-5 sm:p-6">
+          <SectionHeader
+            title="Client Info"
+            description="Optional details about the client this was for."
+          />
 
-          <Field label="Client Company">
-            <input
-              type="text"
-              name="client_organization"
-              defaultValue={capture?.client_organization ?? ""}
-              placeholder="Optional"
-              className={inputClassName}
-            />
-          </Field>
-        </div>
-      </section>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <Field label="Client">
+              <input
+                type="text"
+                name="person_name"
+                defaultValue={capture?.person_name ?? ""}
+                placeholder="Optional"
+                className={inputClassName}
+              />
+            </Field>
 
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <Field label="Client Company">
+              <input
+                type="text"
+                name="client_organization"
+                defaultValue={capture?.client_organization ?? ""}
+                placeholder="Optional"
+                className={inputClassName}
+              />
+            </Field>
+          </div>
+        </section>
+      </div>
+
+      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Link
           href={cancelHref}
-          className="inline-flex h-11 items-center justify-center rounded-xl border px-5 text-sm font-medium transition-colors hover:bg-accent"
+          className="inline-flex min-h-12 items-center justify-center rounded-xl border bg-card px-5 text-sm font-semibold transition-colors hover:bg-muted"
         >
           Cancel
         </Link>
 
         <button
           type="submit"
-          className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-6 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+          className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
         >
           {isEditing ? "Save changes" : "Save documentation"}
         </button>
       </div>
     </form>
+  );
+}
+
+function SectionHeader({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div>
+      <h2 className="text-base font-bold">{title}</h2>
+
+      <p className="mt-1 text-sm leading-5 text-muted-foreground">
+        {description}
+      </p>
+    </div>
   );
 }
 
@@ -429,7 +461,7 @@ function TypeFields({
   switch (captureType) {
     case "CLIENT_VISIT":
       return (
-        <div className="grid gap-4 border-t pt-5 sm:grid-cols-2">
+        <div className="mt-5 grid gap-4 border-t pt-5 sm:grid-cols-2">
           <Field label="Starting location">
             <input
               name="starting_location"
@@ -461,7 +493,7 @@ function TypeFields({
 
     case "TRAVEL":
       return (
-        <div className="grid gap-4 border-t pt-5 sm:grid-cols-2">
+        <div className="mt-5 grid gap-4 border-t pt-5 sm:grid-cols-2">
           <Field label="Starting location">
             <input
               name="starting_location"
@@ -536,7 +568,7 @@ function TypeFields({
 
     case "EQUIPMENT":
       return (
-        <div className="grid gap-4 border-t pt-5 sm:grid-cols-2">
+        <div className="mt-5 grid gap-4 border-t pt-5 sm:grid-cols-2">
           <Field label="Equipment">
             <input
               name="equipment_name"
@@ -596,7 +628,7 @@ function TypeFields({
 
     case "EXPENSE":
       return (
-        <div className="grid gap-4 border-t pt-5 sm:grid-cols-2">
+        <div className="mt-5 grid gap-4 border-t pt-5 sm:grid-cols-2">
           <Field label="Amount">
             <input
               type="number"
@@ -633,10 +665,24 @@ function TypeFields({
   }
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+function Field({
+  label,
+  children,
+  prominent = false,
+}: {
+  label: string;
+  children: ReactNode;
+  prominent?: boolean;
+}) {
   return (
     <label className="block">
-      <span className="mb-2 block text-sm font-medium">{label}</span>
+      <span
+        className={`mb-2 block ${
+          prominent ? "text-base font-bold" : "text-sm font-medium"
+        }`}
+      >
+        {label}
+      </span>
 
       {children}
     </label>
@@ -648,16 +694,16 @@ function SelectWrapper({ children }: { children: ReactNode }) {
     <div className="relative">
       {children}
 
-      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
     </div>
   );
 }
 
 const inputClassName =
-  "h-11 w-full rounded-xl border bg-background px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 read-only:cursor-default read-only:opacity-70";
+  "h-12 w-full rounded-xl border bg-card px-3.5 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-foreground read-only:cursor-default read-only:bg-muted read-only:text-muted-foreground";
 
 const selectClassName =
-  "h-11 w-full appearance-none rounded-xl border bg-background px-3 pr-9 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20";
+  "h-12 w-full appearance-none rounded-xl border bg-card px-3.5 pr-9 text-sm outline-none transition-colors focus:border-foreground";
 
 const textareaClassName =
-  "w-full resize-none rounded-xl border bg-background px-3 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20";
+  "w-full resize-none rounded-xl border bg-card px-3.5 py-3 text-sm leading-6 outline-none transition-colors placeholder:text-muted-foreground focus:border-foreground";

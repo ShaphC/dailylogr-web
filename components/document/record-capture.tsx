@@ -54,11 +54,14 @@ export function RecordCapture() {
     const recognition = new Constructor();
 
     recognition.continuous = true;
+
     recognition.interimResults = true;
+
     recognition.lang = "en-CA";
 
     recognition.onstart = () => {
       setIsListening(true);
+
       setErrorMessage(null);
     };
 
@@ -170,8 +173,9 @@ export function RecordCapture() {
     try {
       recognition.start();
     } catch {
-      // The browser may throw if
-      // recognition is already active.
+      // The browser may throw
+      // when recognition is
+      // already active.
     }
   }
 
@@ -200,7 +204,7 @@ export function RecordCapture() {
 
   if (supported === null) {
     return (
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-4xl">
         <p className="text-sm text-muted-foreground">
           Preparing speech recognition...
         </p>
@@ -210,23 +214,29 @@ export function RecordCapture() {
 
   if (!supported) {
     return (
-      <div className="mx-auto max-w-3xl space-y-6">
+      <div className="mx-auto max-w-4xl">
         <header>
           <Link
             href="/document"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="size-4" />
             Document
           </Link>
 
-          <h1 className="mt-5 text-2xl font-semibold tracking-tight">Record</h1>
+          <h1 className="mt-5 text-3xl font-bold tracking-tight">Record</h1>
+
+          <p className="mt-1 text-[15px] text-muted-foreground">
+            Speak naturally and capture what happened.
+          </p>
         </header>
 
-        <section className="rounded-2xl border bg-card p-6">
-          <h2 className="font-medium">Speech recognition isn't available</h2>
+        <section className="mt-8 rounded-2xl border bg-card p-5 sm:p-6">
+          <h2 className="text-base font-bold">
+            Speech recognition isn&apos;t available
+          </h2>
 
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
             This browser does not support the speech recognition feature
             DailyLogr uses for live transcription. You can use Manual capture
             instead or try a supported browser.
@@ -234,7 +244,7 @@ export function RecordCapture() {
 
           <Link
             href="/document/manual"
-            className="mt-5 inline-flex h-10 items-center justify-center rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            className="mt-5 inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
             Use Manual capture
           </Link>
@@ -244,10 +254,7 @@ export function RecordCapture() {
   }
 
   return (
-    <form
-      action={createVoiceCaptureAction}
-      className="mx-auto max-w-3xl space-y-8"
-    >
+    <form action={createVoiceCaptureAction} className="mx-auto max-w-4xl">
       <input type="hidden" name="capture_date" value={captureDate} />
 
       <input
@@ -261,27 +268,27 @@ export function RecordCapture() {
       <header>
         <Link
           href="/document"
-          className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="size-4" />
           Document
         </Link>
 
-        <h1 className="text-2xl font-semibold tracking-tight">Record</h1>
+        <h1 className="mt-5 text-3xl font-bold tracking-tight">Record</h1>
 
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-1 text-[15px] text-muted-foreground">
           Speak naturally. You can edit the transcript before saving it.
         </p>
       </header>
 
-      <section className="rounded-2xl border bg-card p-6 sm:p-8">
+      <section className="mt-8 rounded-2xl border bg-card px-5 py-10 sm:px-8 sm:py-12">
         <div className="flex flex-col items-center text-center">
           <button
             type="button"
             onClick={isListening ? stopListening : startListening}
-            className={`flex h-20 w-20 items-center justify-center rounded-full transition-all ${
+            className={`flex size-24 cursor-pointer items-center justify-center rounded-full transition-all ${
               isListening
-                ? "bg-destructive text-destructive-foreground shadow-lg"
+                ? "bg-destructive text-white shadow-lg"
                 : "bg-primary text-primary-foreground hover:opacity-90"
             }`}
             aria-label={
@@ -289,13 +296,13 @@ export function RecordCapture() {
             }
           >
             {isListening ? (
-              <Square className="h-7 w-7 fill-current" />
+              <Square className="size-7 fill-current" />
             ) : (
-              <Mic className="h-8 w-8" />
+              <Mic className="size-9" />
             )}
           </button>
 
-          <p className="mt-4 font-medium">
+          <p className="mt-5 text-lg font-bold">
             {isListening
               ? "Listening..."
               : finalizedText
@@ -303,36 +310,49 @@ export function RecordCapture() {
                 : "Start"}
           </p>
 
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 max-w-sm text-sm leading-6 text-muted-foreground">
             {isListening
               ? "Tap when you're finished."
               : finalizedText
                 ? "Tap the microphone to add more."
                 : "Tap the microphone and start speaking."}
           </p>
+
+          {isListening && (
+            <div className="mt-5 flex items-center gap-2">
+              <span className="size-2 animate-pulse rounded-full bg-destructive" />
+
+              <span className="text-xs font-medium text-muted-foreground">
+                Live transcription
+              </span>
+            </div>
+          )}
         </div>
 
         {errorMessage && (
-          <div className="mt-6 rounded-xl border bg-background p-4">
-            <p className="text-sm text-muted-foreground">{errorMessage}</p>
+          <div className="mx-auto mt-8 max-w-xl rounded-xl border bg-muted px-4 py-3">
+            <p className="text-sm leading-6 text-muted-foreground">
+              {errorMessage}
+            </p>
           </div>
         )}
       </section>
 
       {(startedAt || displayedTranscript) && (
-        <section className="rounded-2xl border bg-card p-5 sm:p-6">
+        <section className="mt-4 rounded-2xl border bg-card p-5 sm:p-6">
           <div className="flex items-center justify-between gap-4">
-            <label htmlFor="transcript" className="text-sm font-medium">
-              Transcript
-            </label>
+            <h2 className="text-base font-bold">Transcript</h2>
 
             {isListening && (
-              <span className="text-xs text-muted-foreground">Live</span>
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                <span className="size-1.5 rounded-full bg-destructive" />
+                Live
+              </span>
             )}
           </div>
 
           {isListening ? (
-            <div className="mt-3 min-h-44 whitespace-pre-wrap rounded-xl border bg-background px-4 py-3 text-sm leading-6">
+            <div className="mt-4 min-h-48 whitespace-pre-wrap rounded-xl border bg-card px-4 py-3 text-base leading-7">
               {finalizedText}
 
               {finalizedText && interimText && " "}
@@ -348,13 +368,13 @@ export function RecordCapture() {
           ) : (
             <textarea
               id="transcript"
-              rows={8}
+              rows={9}
               value={finalizedText}
               onChange={(event) => {
                 handleTranscriptChange(event.target.value);
               }}
               placeholder="Your transcript will appear here..."
-              className="mt-3 w-full resize-none rounded-xl border bg-background px-4 py-3 text-sm leading-6 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className="mt-4 w-full resize-none rounded-xl border bg-card px-4 py-3 text-base leading-7 outline-none transition-colors placeholder:text-muted-foreground focus:border-foreground"
             />
           )}
 
@@ -370,10 +390,10 @@ export function RecordCapture() {
         </section>
       )}
 
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Link
           href="/document"
-          className="inline-flex h-11 items-center justify-center rounded-xl border px-5 text-sm font-medium transition-colors hover:bg-accent"
+          className="inline-flex min-h-12 items-center justify-center rounded-xl border bg-card px-5 text-sm font-semibold transition-colors hover:bg-muted"
         >
           Cancel
         </Link>
@@ -381,7 +401,7 @@ export function RecordCapture() {
         <button
           type="submit"
           disabled={!canSave}
-          className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-6 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Save documentation
         </button>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CircleAlert, FileText } from "lucide-react";
+import { ArrowRight, CircleAlert, FileText, Plus } from "lucide-react";
 import { HistoryFilters } from "@/components/history/history-filters";
 import {
   getDocumentationStatus,
@@ -52,6 +52,7 @@ function normalizeDate(value: string | undefined) {
 
 function formatDateHeading(dateKey: string) {
   const today = new Date();
+
   const yesterday = new Date(today);
 
   yesterday.setDate(today.getDate() - 1);
@@ -170,18 +171,26 @@ export default async function HistoryPage({
   const groups = groupDocumentation(filteredDocumentation);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
-      <header>
-        <p className="text-sm text-muted-foreground">Documentation</p>
+    <div className="mx-auto max-w-5xl">
+      <header className="flex items-start justify-between gap-5">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">History</h1>
 
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">History</h1>
+          <p className="mt-1 text-[15px] text-muted-foreground">
+            Browse everything you&apos;ve documented.
+          </p>
+        </div>
 
-        <p className="mt-2 text-sm text-muted-foreground">
-          Browse everything you've documented.
-        </p>
+        <Link
+          href="/document"
+          className="hidden min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 sm:inline-flex"
+        >
+          <Plus className="size-4" />
+          Document
+        </Link>
       </header>
 
-      <section className="rounded-2xl border bg-card p-4 sm:p-5">
+      <section className="mt-7 rounded-2xl border bg-card p-4 sm:p-5">
         <HistoryFilters
           companies={companies}
           period={period}
@@ -192,10 +201,10 @@ export default async function HistoryPage({
         />
       </section>
 
-      <section>
-        <div className="mb-5 flex items-center justify-between gap-4">
+      <section className="mt-9">
+        <div className="mb-5 flex items-end justify-between gap-4">
           <div>
-            <h2 className="font-medium">Documentation</h2>
+            <h2 className="text-xl font-bold tracking-tight">Documentation</h2>
 
             <p className="mt-1 text-sm text-muted-foreground">
               {filteredDocumentation.length}{" "}
@@ -205,8 +214,9 @@ export default async function HistoryPage({
 
           <Link
             href="/document"
-            className="inline-flex h-10 items-center justify-center rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 sm:hidden"
           >
+            <Plus className="size-4" />
             Document
           </Link>
         </div>
@@ -217,13 +227,13 @@ export default async function HistoryPage({
           <div className="space-y-8">
             {groups.map(([date, items]) => (
               <div key={date}>
-                <h3 className="mb-3 text-sm font-medium text-muted-foreground">
+                <h3 className="mb-3 text-xs font-semibold text-muted-foreground">
                   {formatDateHeading(date)}
                 </h3>
 
-                <div className="overflow-hidden rounded-2xl border bg-card">
-                  {items.map((item, index) => (
-                    <HistoryRow
+                <div className="space-y-3">
+                  {items.map((item) => (
+                    <HistoryCard
                       key={`${item.kind}-${item.id}`}
                       item={item}
                       companyName={
@@ -231,7 +241,6 @@ export default async function HistoryPage({
                           ? (companyMap.get(item.companyId) ?? null)
                           : null
                       }
-                      showBorder={index > 0}
                     />
                   ))}
                 </div>
@@ -244,14 +253,12 @@ export default async function HistoryPage({
   );
 }
 
-function HistoryRow({
+function HistoryCard({
   item,
   companyName,
-  showBorder,
 }: {
   item: DocumentationItem;
   companyName: string | null;
-  showBorder: boolean;
 }) {
   if (item.kind === "capture" && item.capture) {
     const capture = item.capture;
@@ -270,52 +277,50 @@ function HistoryRow({
     return (
       <Link
         href={`/document/${capture.id}`}
-        className={`group block p-4 transition-colors hover:bg-accent/40 sm:p-5 ${
-          showBorder ? "border-t" : ""
-        }`}
+        className="group block rounded-2xl border bg-card p-5 transition-colors hover:bg-accent/40"
       >
-        <div className="flex gap-4">
-          <div className="w-16 shrink-0 pt-0.5">
-            <p className="text-xs text-muted-foreground">{time}</p>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
+            <span className="text-xs font-semibold text-muted-foreground">
+              {typeLabel}
+            </span>
+
+            {time && (
+              <span className="text-xs text-muted-foreground">{time}</span>
+            )}
+
+            {capture.source === "VOICE" && (
+              <span className="text-xs text-muted-foreground">Voice</span>
+            )}
           </div>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium text-primary">
-                {typeLabel}
-              </span>
+          <ArrowRight className="mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-foreground" />
+        </div>
 
-              {capture.source === "VOICE" && (
-                <span className="text-xs text-muted-foreground">Voice</span>
-              )}
+        <p className="mt-3 whitespace-pre-wrap text-base leading-6">
+          {capture.text || "No documentation text"}
+        </p>
 
-              {status === "INCOMPLETE" && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
-                  <CircleAlert className="h-3 w-3" />
-                  Missing information
-                </span>
-              )}
-            </div>
+        {(companyName ||
+          capture.person_name ||
+          capture.client_organization) && (
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            {companyName && <span>{companyName}</span>}
 
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-6">
-              {capture.text || "No documentation text"}
-            </p>
+            {capture.person_name && <span>Client: {capture.person_name}</span>}
 
-            {(companyName ||
-              capture.person_name ||
-              capture.client_organization) && (
-              <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                {companyName && <span>{companyName}</span>}
-
-                {capture.person_name && (
-                  <span>Client: {capture.person_name}</span>
-                )}
-
-                {capture.client_organization && (
-                  <span>{capture.client_organization}</span>
-                )}
-              </div>
+            {capture.client_organization && (
+              <span>{capture.client_organization}</span>
             )}
+          </div>
+        )}
+
+        {status === "INCOMPLETE" && (
+          <div className="mt-4">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+              <CircleAlert className="size-3" />
+              Missing information
+            </span>
 
             {missingFields.length > 0 && (
               <p className="mt-2 text-xs text-muted-foreground">
@@ -323,9 +328,7 @@ function HistoryRow({
               </p>
             )}
           </div>
-
-          <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" />
-        </div>
+        )}
       </Link>
     );
   }
@@ -336,35 +339,27 @@ function HistoryRow({
     const time = formatTime(entry.created_at);
 
     const category =
-      typeLabels[entry.category] ?? entry.category ?? "Legacy entry";
+      typeLabels[entry.category] ?? entry.category ?? "Documentation";
 
     return (
-      <div className={`p-4 sm:p-5 ${showBorder ? "border-t" : ""}`}>
-        <div className="flex gap-4">
-          <div className="w-16 shrink-0 pt-0.5">
-            <p className="text-xs text-muted-foreground">{time}</p>
-          </div>
+      <div className="rounded-2xl border bg-card p-5">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <span className="text-xs font-semibold text-muted-foreground">
+            {category}
+          </span>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-
-              <span className="text-xs font-medium text-muted-foreground">
-                {category}
-              </span>
-            </div>
-
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-6">
-              {entry.text || entry.notes || "No documentation text"}
-            </p>
-
-            {companyName && (
-              <p className="mt-3 text-xs text-muted-foreground">
-                {companyName}
-              </p>
-            )}
-          </div>
+          {time && (
+            <span className="text-xs text-muted-foreground">{time}</span>
+          )}
         </div>
+
+        <p className="mt-3 whitespace-pre-wrap text-base leading-6">
+          {entry.text || entry.notes || "No documentation text"}
+        </p>
+
+        {companyName && (
+          <p className="mt-3 text-xs text-muted-foreground">{companyName}</p>
+        )}
       </div>
     );
   }
@@ -374,12 +369,12 @@ function HistoryRow({
 
 function EmptyHistory() {
   return (
-    <div className="rounded-2xl border bg-card px-6 py-14 text-center">
-      <FileText className="mx-auto h-6 w-6 text-muted-foreground" />
+    <div className="rounded-2xl border bg-card p-6">
+      <FileText className="size-5 text-muted-foreground" />
 
-      <h3 className="mt-4 font-medium">No documentation found</h3>
+      <h3 className="mt-4 text-base font-semibold">No documentation found</h3>
 
-      <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
+      <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
         Nothing matches the current filters.
       </p>
     </div>

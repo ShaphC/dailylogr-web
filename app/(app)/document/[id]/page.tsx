@@ -1,3 +1,4 @@
+import type { ComponentType } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -8,13 +9,13 @@ import {
   Pencil,
   UserRound,
 } from "lucide-react";
-import { getCapture } from "@/lib/services/captures";
-import { getCompanies } from "@/lib/services/companies";
+import { DeleteCaptureButton } from "@/components/document/delete-capture-button";
 import {
   getDocumentationStatus,
   getMissingFields,
 } from "@/lib/services/capture-completeness";
-import { DeleteCaptureButton } from "@/components/document/delete-capture-button";
+import { getCapture } from "@/lib/services/captures";
+import { getCompanies } from "@/lib/services/companies";
 
 const typeLabels: Record<string, string> = {
   WORK_DONE: "Work Done",
@@ -76,7 +77,6 @@ export default async function CaptureDetailsPage({
     companies.find((item) => item.id === capture.company_id) ?? null;
 
   const status = getDocumentationStatus(capture);
-
   const missingFields = getMissingFields(capture);
 
   const typeLabel = capture.capture_type
@@ -84,118 +84,119 @@ export default async function CaptureDetailsPage({
     : "Unclassified";
 
   const startTime = formatTime(capture.start_time);
-
   const endTime = formatTime(capture.end_time);
 
   const details = capture.type_details ?? {};
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="mx-auto max-w-4xl">
       <header>
         <Link
           href="/"
-          className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="size-4" />
           Home
         </Link>
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-primary">
-                {typeLabel}
-              </span>
+            <h1 className="text-3xl font-bold tracking-tight">Documentation</h1>
+
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="text-sm font-semibold">{typeLabel}</span>
 
               {capture.source === "VOICE" && (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                <span className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">
                   Voice
                 </span>
               )}
 
               {status === "INCOMPLETE" && (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                <span className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">
                   Missing information
                 </span>
               )}
 
               {status === "UNCLASSIFIED" && (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                <span className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">
                   Unclassified
                 </span>
               )}
             </div>
-
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight">
-              Documentation
-            </h1>
           </div>
 
           <Link
             href={`/document/${capture.id}/edit`}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium transition-colors hover:bg-accent"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-start rounded-xl border px-4 text-sm font-semibold transition-colors hover:bg-accent"
           >
-            <Pencil className="h-4 w-4" />
+            <Pencil className="size-4" />
             Edit
           </Link>
         </div>
       </header>
 
-      <section className="rounded-2xl border bg-card p-5 sm:p-6">
-        <p className="whitespace-pre-wrap text-sm leading-7">
+      <section className="mt-8 rounded-2xl border bg-card p-5 sm:p-6">
+        <p className="whitespace-pre-wrap text-base leading-7">
           {capture.text || "No documentation text."}
         </p>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-2">
-        <InfoItem
-          icon={CalendarDays}
-          label="Date"
-          value={formatDate(capture.capture_date)}
-        />
+      <section className="mt-6">
+        <h2 className="mb-4 text-xl font-bold tracking-tight">Information</h2>
 
-        <InfoItem
-          icon={Clock3}
-          label="Time"
-          value={
-            startTime && endTime
-              ? `${startTime} – ${endTime}`
-              : (startTime ?? "Not specified")
-          }
-        />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <InfoItem
+            icon={CalendarDays}
+            label="Date"
+            value={formatDate(capture.capture_date)}
+          />
 
-        {capture.duration_minutes !== null && (
           <InfoItem
             icon={Clock3}
-            label="Duration"
-            value={`${capture.duration_minutes} minutes`}
+            label="Time"
+            value={
+              startTime && endTime
+                ? `${startTime} – ${endTime}`
+                : (startTime ?? "Not specified")
+            }
           />
-        )}
 
-        {company && (
-          <InfoItem icon={Building2} label="Company" value={company.name} />
-        )}
+          {capture.duration_minutes !== null && (
+            <InfoItem
+              icon={Clock3}
+              label="Duration"
+              value={`${capture.duration_minutes} ${
+                capture.duration_minutes === 1 ? "minute" : "minutes"
+              }`}
+            />
+          )}
 
-        {capture.person_name && (
-          <InfoItem
-            icon={UserRound}
-            label="Person"
-            value={capture.person_name}
-          />
-        )}
+          {company && (
+            <InfoItem icon={Building2} label="Company" value={company.name} />
+          )}
 
-        {capture.client_organization && (
-          <InfoItem
-            icon={Building2}
-            label="Client organization"
-            value={capture.client_organization}
-          />
-        )}
+          {capture.person_name && (
+            <InfoItem
+              icon={UserRound}
+              label="Client"
+              value={capture.person_name}
+            />
+          )}
+
+          {capture.client_organization && (
+            <InfoItem
+              icon={Building2}
+              label="Client company"
+              value={capture.client_organization}
+            />
+          )}
+        </div>
       </section>
 
       {Object.keys(details).length > 0 && (
-        <section className="rounded-2xl border bg-card p-5 sm:p-6">
-          <h2 className="font-medium">Details</h2>
+        <section className="mt-6 rounded-2xl border bg-card p-5 sm:p-6">
+          <h2 className="text-xl font-bold tracking-tight">Details</h2>
 
           <div className="mt-5 grid gap-x-8 gap-y-5 sm:grid-cols-2">
             {capture.capture_type === "CLIENT_VISIT" && (
@@ -316,18 +317,20 @@ export default async function CaptureDetailsPage({
       )}
 
       {missingFields.length > 0 && (
-        <section className="rounded-2xl border bg-card p-5 sm:p-6">
-          <h2 className="font-medium">Missing information</h2>
+        <section className="mt-6 rounded-2xl border bg-card p-5 sm:p-6">
+          <h2 className="text-xl font-bold tracking-tight">
+            Missing information
+          </h2>
 
-          <p className="mt-2 text-sm text-muted-foreground">
-            Add these details when you have them:
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Add these details when you have them.
           </p>
 
           <div className="mt-4 flex flex-wrap gap-2">
             {missingFields.map((field) => (
               <span
                 key={field}
-                className="rounded-full bg-muted px-3 py-1 text-xs"
+                className="rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground"
               >
                 {field}
               </span>
@@ -336,7 +339,7 @@ export default async function CaptureDetailsPage({
         </section>
       )}
 
-      <section className="border-t pt-6">
+      <section className="mt-8 border-t pt-6">
         <DeleteCaptureButton captureId={capture.id} />
       </section>
     </div>
@@ -348,7 +351,7 @@ function InfoItem({
   label,
   value,
 }: {
-  icon: React.ComponentType<{
+  icon: ComponentType<{
     className?: string;
   }>;
   label: string;
@@ -356,15 +359,15 @@ function InfoItem({
 }) {
   return (
     <div className="rounded-2xl border bg-card p-4">
-      <div className="flex gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <Icon className="h-4 w-4" />
+      <div className="flex items-center gap-3">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border bg-card">
+          <Icon className="size-4 text-muted-foreground" />
         </div>
 
         <div className="min-w-0">
-          <p className="text-xs text-muted-foreground">{label}</p>
+          <p className="text-xs font-medium text-muted-foreground">{label}</p>
 
-          <p className="mt-1 break-words text-sm font-medium">{value}</p>
+          <p className="mt-1 break-words text-sm font-semibold">{value}</p>
         </div>
       </div>
     </div>
@@ -386,9 +389,9 @@ function Detail({
 
   return (
     <div className={wide ? "sm:col-span-2" : ""}>
-      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
 
-      <p className="mt-1 whitespace-pre-wrap text-sm">{value}</p>
+      <p className="mt-1.5 whitespace-pre-wrap text-sm leading-6">{value}</p>
     </div>
   );
 }

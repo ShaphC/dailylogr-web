@@ -18,7 +18,6 @@ export function SignOutButton() {
     await supabase.auth.signOut();
 
     router.replace("/login");
-
     router.refresh();
   }
 
@@ -27,9 +26,9 @@ export function SignOutButton() {
       type="button"
       disabled={signingOut}
       onClick={signOut}
-      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50"
+      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50"
     >
-      <LogOut className="h-4 w-4" />
+      <LogOut className="size-4" />
 
       {signingOut ? "Signing out..." : "Sign out"}
     </button>

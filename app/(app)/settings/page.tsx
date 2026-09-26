@@ -15,20 +15,18 @@ export default async function SettingsPage() {
   const companies = await getCompanies();
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="mx-auto max-w-3xl">
       <header>
-        <p className="text-sm text-muted-foreground">DailyLogr</p>
+        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
 
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">Settings</h1>
-
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-1 text-[15px] text-muted-foreground">
           Manage your DailyLogr preferences.
         </p>
       </header>
 
-      <section>
+      <section className="mt-8">
         <div className="mb-4">
-          <h2 className="font-medium">Appearance</h2>
+          <h2 className="text-xl font-bold tracking-tight">Appearance</h2>
 
           <p className="mt-1 text-sm text-muted-foreground">
             Choose how DailyLogr looks on this device.
@@ -38,9 +36,9 @@ export default async function SettingsPage() {
         <ThemeSelector />
       </section>
 
-      <section className="overflow-hidden rounded-2xl border bg-card">
-        <div className="border-b px-5 py-4">
-          <h2 className="font-medium">Companies</h2>
+      <section className="mt-8">
+        <div className="mb-4">
+          <h2 className="text-xl font-bold tracking-tight">Companies</h2>
 
           <p className="mt-1 text-sm text-muted-foreground">
             Manage the companies you document work for.
@@ -49,16 +47,16 @@ export default async function SettingsPage() {
 
         <Link
           href="/settings/companies"
-          className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-accent/40"
+          className="group flex min-h-[76px] items-center gap-4 rounded-2xl border bg-card p-4 transition-colors hover:bg-accent/40 sm:p-5"
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Building2 className="h-5 w-5" />
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border bg-card">
+            <Building2 className="size-5 text-muted-foreground" />
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">Companies</p>
+            <p className="text-sm font-semibold">Companies</p>
 
-            <p className="mt-0.5 text-sm text-muted-foreground">
+            <p className="mt-1 text-sm text-muted-foreground">
               {companies.length === 0
                 ? "No active companies"
                 : companies.length === 1
@@ -67,31 +65,33 @@ export default async function SettingsPage() {
             </p>
           </div>
 
-          <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+          <ChevronRight className="size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
         </Link>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border bg-card">
-        <div className="border-b px-5 py-4">
-          <h2 className="font-medium">Account</h2>
+      <section className="mt-8">
+        <div className="mb-4">
+          <h2 className="text-xl font-bold tracking-tight">Account</h2>
         </div>
 
-        <div className="flex flex-col gap-5 px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex min-w-0 items-center gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-              <UserRound className="h-5 w-5" />
+        <div className="rounded-2xl border bg-card p-4 sm:p-5">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-4">
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border bg-card">
+                <UserRound className="size-5 text-muted-foreground" />
+              </div>
+
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">Signed in as</p>
+
+                <p className="mt-1 truncate text-sm text-muted-foreground">
+                  {user?.email ?? "Unknown account"}
+                </p>
+              </div>
             </div>
 
-            <div className="min-w-0">
-              <p className="text-sm font-medium">Signed in as</p>
-
-              <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                {user?.email ?? "Unknown account"}
-              </p>
-            </div>
+            <SignOutButton />
           </div>
-
-          <SignOutButton />
         </div>
       </section>
     </div>

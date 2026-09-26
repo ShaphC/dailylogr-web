@@ -18,7 +18,6 @@ export function ProgressCompanyFilter({
   function changeCompany(value: string) {
     if (!value) {
       router.push("/progress");
-
       return;
     }
 
@@ -30,18 +29,18 @@ export function ProgressCompanyFilter({
   }
 
   return (
-    <label className="block w-full sm:w-64">
-      <span className="mb-2 block text-xs font-medium text-muted-foreground">
+    <label className="relative block min-h-16 w-full rounded-xl border bg-card px-3 py-2.5 sm:w-64">
+      <span className="block text-[10px] font-medium text-muted-foreground">
         Company
       </span>
 
-      <div className="relative">
+      <div className="relative mt-1">
         <select
           value={companyId}
           onChange={(event) => {
             changeCompany(event.target.value);
           }}
-          className="h-11 w-full appearance-none rounded-xl border bg-card px-3 pr-9 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+          className="h-6 w-full cursor-pointer appearance-none bg-transparent pr-7 text-[13px] font-bold outline-none"
         >
           <option value="">All companies</option>
 
@@ -52,7 +51,7 @@ export function ProgressCompanyFilter({
           ))}
         </select>
 
-        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <ChevronDown className="pointer-events-none absolute right-0 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
       </div>
     </label>
   );

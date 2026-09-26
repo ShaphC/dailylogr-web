@@ -1,6 +1,6 @@
 "use client";
 
-import { Laptop, Moon, Sun } from "lucide-react";
+import { Check, Laptop, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
@@ -40,7 +40,7 @@ export function ThemeSelector() {
         {themes.map((item) => (
           <div
             key={item.value}
-            className="h-[106px] rounded-xl border bg-card"
+            className="h-[128px] rounded-2xl border bg-card"
           />
         ))}
       </div>
@@ -51,7 +51,6 @@ export function ThemeSelector() {
     <div className="grid gap-3 sm:grid-cols-3">
       {themes.map((item) => {
         const Icon = item.icon;
-
         const selected = theme === item.value;
 
         return (
@@ -59,25 +58,25 @@ export function ThemeSelector() {
             key={item.value}
             type="button"
             onClick={() => setTheme(item.value)}
-            className={`rounded-xl border p-4 text-left transition-colors ${
+            className={`relative min-h-32 rounded-2xl border p-4 text-left transition-colors ${
               selected
-                ? "border-primary bg-primary/5"
+                ? "border-foreground bg-muted/50"
                 : "bg-card hover:bg-accent/40"
             }`}
           >
-            <div
-              className={`flex h-9 w-9 items-center justify-center rounded-lg ${
-                selected
-                  ? "bg-primary/10 text-primary"
-                  : "bg-muted text-muted-foreground"
-              }`}
-            >
-              <Icon className="h-4 w-4" />
+            {selected && (
+              <div className="absolute right-3 top-3 flex size-5 items-center justify-center rounded-full bg-foreground text-background">
+                <Check className="size-3" strokeWidth={3} />
+              </div>
+            )}
+
+            <div className="flex size-10 items-center justify-center rounded-xl border bg-card">
+              <Icon className="size-4 text-muted-foreground" />
             </div>
 
-            <p className="mt-3 text-sm font-medium">{item.label}</p>
+            <p className="mt-4 text-sm font-semibold">{item.label}</p>
 
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
               {item.description}
             </p>
           </button>

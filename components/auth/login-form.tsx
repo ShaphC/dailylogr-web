@@ -3,9 +3,6 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 export function LoginForm() {
   const router = useRouter();
@@ -40,41 +37,56 @@ export function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-5 rounded-xl border bg-card p-6"
+      className="rounded-2xl border bg-card p-5 sm:p-6"
     >
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input
+      <div>
+        <label htmlFor="email" className="mb-2 block text-sm font-semibold">
+          Email
+        </label>
+
+        <input
           id="email"
           type="email"
           autoComplete="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           required
+          className="h-12 w-full rounded-xl border bg-card px-3.5 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-foreground"
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
-        <Input
+      <div className="mt-5">
+        <label htmlFor="password" className="mb-2 block text-sm font-semibold">
+          Password
+        </label>
+
+        <input
           id="password"
           type="password"
           autoComplete="current-password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           required
+          className="h-12 w-full rounded-xl border bg-card px-3.5 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-foreground"
         />
       </div>
 
       {error && (
-        <p className="text-sm text-destructive" role="alert">
-          {error}
-        </p>
+        <div
+          role="alert"
+          className="mt-5 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3"
+        >
+          <p className="text-sm text-destructive">{error}</p>
+        </div>
       )}
 
-      <Button type="submit" className="w-full" disabled={loading}>
+      <button
+        type="submit"
+        disabled={loading}
+        className="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50"
+      >
         {loading ? "Signing in..." : "Sign in"}
-      </Button>
+      </button>
     </form>
   );
 }

@@ -1,4 +1,3 @@
-import { CalendarDays, FileText, Flame } from "lucide-react";
 import { ProgressCompanyFilter } from "@/components/progress/progress-company-filter";
 import { getCompanies } from "@/lib/services/companies";
 import { getProgressData } from "@/lib/services/progress";
@@ -48,17 +47,14 @@ export default async function ProgressPage({
   );
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
+    <div className="mx-auto max-w-5xl">
       <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm text-muted-foreground">Documentation</p>
+          <h1 className="text-3xl font-bold tracking-tight">Progress</h1>
 
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight">
-            Progress
-          </h1>
-
-          <p className="mt-2 text-sm text-muted-foreground">
-            See how consistently you're building your documentation history.
+          <p className="mt-1 text-[15px] text-muted-foreground">
+            See how consistently you&apos;re building your documentation
+            history.
           </p>
         </div>
 
@@ -66,35 +62,41 @@ export default async function ProgressPage({
       </header>
 
       {selectedCompany && (
-        <div className="rounded-xl border bg-card px-4 py-3 text-sm">
-          Showing progress for{" "}
-          <span className="font-medium">{selectedCompany}</span>
+        <div className="mt-5 rounded-xl border bg-card px-4 py-3">
+          <p className="text-sm text-muted-foreground">
+            Showing progress for{" "}
+            <span className="font-semibold text-foreground">
+              {selectedCompany}
+            </span>
+          </p>
         </div>
       )}
 
-      <section className="grid gap-4 sm:grid-cols-3">
+      <section className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <MetricCard
-          icon={Flame}
           value={progress.currentStreak}
-          label={progress.currentStreak === 1 ? "Day streak" : "Day streak"}
+          label="Current streak"
+          unit={progress.currentStreak === 1 ? "day" : "days"}
+          featured
         />
 
         <MetricCard
-          icon={FileText}
           value={progress.thisMonthCount}
           label="This month"
+          unit={progress.thisMonthCount === 1 ? "item" : "items"}
         />
 
         <MetricCard
-          icon={CalendarDays}
           value={progress.activeDaysThisMonth}
           label="Active days"
+          unit={progress.activeDaysThisMonth === 1 ? "day" : "days"}
+          className="col-span-2 sm:col-span-1"
         />
       </section>
 
-      <section className="rounded-2xl border bg-card p-5 sm:p-6">
+      <section className="mt-6 rounded-2xl border bg-card p-5 sm:p-6">
         <div>
-          <h2 className="font-medium">Last 30 days</h2>
+          <h2 className="text-xl font-bold tracking-tight">Last 30 days</h2>
 
           <p className="mt-1 text-sm text-muted-foreground">
             Days where you documented something.
@@ -112,33 +114,35 @@ export default async function ProgressPage({
                   day.count === 1 ? "item" : "items"
                 }`}
                 className={`h-4 w-4 rounded-[4px] border ${
-                  active ? "border-primary bg-primary" : "bg-muted/40"
+                  active ? "border-foreground bg-foreground" : "bg-muted/40"
                 }`}
               />
             );
           })}
         </div>
 
-        <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
+        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
-            <span className="h-3.5 w-3.5 rounded-sm border bg-muted/40" />
-            No documentation
+            <span className="h-3.5 w-3.5 rounded-[3px] border bg-muted/40" />
+            <span>No documentation</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="h-3.5 w-3.5 rounded-sm border border-primary bg-primary" />
-            Documented
+            <span className="h-3.5 w-3.5 rounded-[3px] border border-foreground bg-foreground" />
+            <span>Documented</span>
           </div>
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <section className="rounded-2xl border bg-card p-5 sm:p-6">
           <div>
-            <h2 className="font-medium">Documentation breakdown</h2>
+            <h2 className="text-xl font-bold tracking-tight">
+              Documentation breakdown
+            </h2>
 
             <p className="mt-1 text-sm text-muted-foreground">
-              What you've been documenting.
+              What you&apos;ve been documenting.
             </p>
           </div>
 
@@ -156,7 +160,7 @@ export default async function ProgressPage({
 
         <section className="rounded-2xl border bg-card p-5 sm:p-6">
           <div>
-            <h2 className="font-medium">By company</h2>
+            <h2 className="text-xl font-bold tracking-tight">By company</h2>
 
             <p className="mt-1 text-sm text-muted-foreground">
               Where your documentation belongs.
@@ -164,9 +168,11 @@ export default async function ProgressPage({
           </div>
 
           {progress.companyCounts.length === 0 ? (
-            <p className="mt-6 text-sm text-muted-foreground">
-              No documentation yet.
-            </p>
+            <div className="mt-6 rounded-xl bg-muted/40 px-4 py-4">
+              <p className="text-sm text-muted-foreground">
+                No documentation yet.
+              </p>
+            </div>
           ) : (
             <div className="mt-6 space-y-5">
               {progress.companyCounts.map((item) => (
@@ -190,23 +196,39 @@ export default async function ProgressPage({
 }
 
 function MetricCard({
-  icon: Icon,
   value,
   label,
+  unit,
+  featured = false,
+  className = "",
 }: {
-  icon: typeof Flame;
   value: number;
   label: string;
+  unit: string;
+  featured?: boolean;
+  className?: string;
 }) {
   return (
-    <div className="rounded-2xl border bg-card p-5">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-        <Icon className="h-5 w-5" />
+    <div
+      className={`flex min-h-32 flex-col justify-between rounded-2xl border bg-card p-5 ${className}`}
+    >
+      <p className="text-[13px] font-medium text-muted-foreground">{label}</p>
+
+      <div className="mt-5 flex items-baseline gap-2">
+        <span
+          className={
+            featured
+              ? "text-[42px] font-bold leading-none tracking-tight"
+              : "text-3xl font-bold leading-none tracking-tight"
+          }
+        >
+          {value}
+        </span>
+
+        <span className="text-sm font-medium text-muted-foreground">
+          {unit}
+        </span>
       </div>
-
-      <p className="mt-5 text-3xl font-semibold tracking-tight">{value}</p>
-
-      <p className="mt-1 text-sm text-muted-foreground">{label}</p>
     </div>
   );
 }
@@ -224,15 +246,15 @@ function BreakdownRow({
 
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between gap-4">
-        <span className="text-sm">{label}</span>
+      <div className="mb-2.5 flex items-center justify-between gap-4">
+        <span className="text-sm font-medium">{label}</span>
 
-        <span className="text-sm font-medium">{count}</span>
+        <span className="text-sm font-semibold">{count}</span>
       </div>
 
       <div className="h-1.5 overflow-hidden rounded-full bg-muted">
         <div
-          className="h-full rounded-full bg-primary transition-[width]"
+          className="h-full rounded-full bg-foreground transition-[width]"
           style={{
             width: `${width}%`,
           }}

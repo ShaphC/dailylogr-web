@@ -7,9 +7,18 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+
+  --font-sans:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+
+  --font-heading:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -59,22 +68,6 @@
 }
 
 :root {
-  /*
-   * DailyLogr Light
-   *
-   * Mobile:
-   * background       #F7F7F5
-   * surface          #FFFFFF
-   * text             #111111
-   * secondaryText    #666666
-   * mutedText        #777777
-   * border           #DDDDDD
-   * inputBackground  #FFFFFF
-   * buttonBackground #111111
-   * buttonText       #FFFFFF
-   * danger           #C0392B
-   */
-
   --background: #f7f7f5;
   --foreground: #111111;
 
@@ -121,22 +114,6 @@
 }
 
 .dark {
-  /*
-   * DailyLogr Dark
-   *
-   * Mobile:
-   * background       #111111
-   * surface          #1C1C1C
-   * text             #FFFFFF
-   * secondaryText    #D0D0D0
-   * mutedText        #B8B8B8
-   * border           #3A3A3A
-   * inputBackground  #1C1C1C
-   * buttonBackground #FFFFFF
-   * buttonText       #111111
-   * danger           #FF6B5F
-   */
-
   --background: #111111;
   --foreground: #ffffff;
 
@@ -186,7 +163,15 @@
   }
 
   html {
-    @apply font-sans;
+    font-family:
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      Helvetica,
+      Arial,
+      sans-serif;
   }
 
   body {

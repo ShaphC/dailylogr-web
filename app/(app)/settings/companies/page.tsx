@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Building2 } from "lucide-react";
 import { AddCompanyForm } from "@/components/settings/add-company-form";
 import { CompanyRow } from "@/components/settings/company-row";
 import { getAllCompanies } from "@/lib/services/company-management";
@@ -12,40 +12,57 @@ export default async function CompaniesPage() {
   const archived = companies.filter((company) => Boolean(company.archived_at));
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="mx-auto max-w-3xl">
       <header>
         <Link
           href="/settings"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="size-4" />
           Settings
         </Link>
 
-        <h1 className="mt-5 text-2xl font-semibold tracking-tight">
-          Companies
-        </h1>
+        <h1 className="mt-5 text-3xl font-bold tracking-tight">Companies</h1>
 
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-1 text-[15px] text-muted-foreground">
           Manage the companies you document work for.
         </p>
       </header>
 
-      <AddCompanyForm />
+      <div className="mt-8">
+        <AddCompanyForm />
+      </div>
 
-      <section>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-medium">Active</h2>
+      <section className="mt-9">
+        <div className="mb-4 flex items-end justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">Active</h2>
 
-          <span className="text-sm text-muted-foreground">{active.length}</span>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Companies currently available when documenting.
+            </p>
+          </div>
+
+          <span className="shrink-0 text-sm font-medium text-muted-foreground">
+            {active.length}
+          </span>
         </div>
 
         {active.length === 0 ? (
-          <div className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground">
-            You don't have any active companies.
+          <div className="rounded-2xl border bg-card p-6">
+            <Building2 className="size-5 text-muted-foreground" />
+
+            <h3 className="mt-4 text-base font-semibold">
+              No active companies
+            </h3>
+
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Add a company above when you have work you want to keep organized
+              separately.
+            </p>
           </div>
         ) : (
-          <div className="divide-y overflow-hidden rounded-2xl border bg-card">
+          <div className="space-y-3">
             {active.map((company) => (
               <CompanyRow key={company.id} company={company} />
             ))}
@@ -54,10 +71,10 @@ export default async function CompaniesPage() {
       </section>
 
       {archived.length > 0 && (
-        <section>
-          <div className="mb-3 flex items-center justify-between">
+        <section className="mt-9">
+          <div className="mb-4 flex items-end justify-between gap-4">
             <div>
-              <h2 className="font-medium">Archived</h2>
+              <h2 className="text-xl font-bold tracking-tight">Archived</h2>
 
               <p className="mt-1 text-sm text-muted-foreground">
                 Archived companies remain attached to your previous
@@ -65,12 +82,12 @@ export default async function CompaniesPage() {
               </p>
             </div>
 
-            <span className="text-sm text-muted-foreground">
+            <span className="shrink-0 text-sm font-medium text-muted-foreground">
               {archived.length}
             </span>
           </div>
 
-          <div className="divide-y overflow-hidden rounded-2xl border bg-card">
+          <div className="space-y-3">
             {archived.map((company) => (
               <CompanyRow key={company.id} company={company} />
             ))}
