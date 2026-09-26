@@ -1,13 +1,5 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  BriefcaseBusiness,
-  CircleAlert,
-  MapPin,
-  Package,
-  Receipt,
-  Route,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import {
   getMonthEndDateKey,
   getMonthStartDateKey,
@@ -31,6 +23,14 @@ const typeLabels: Record<string, string> = {
   GENERAL: "General",
 };
 
+function formatLocalDateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 function formatDateHeading(dateKey: string) {
   const today = new Date();
   const yesterday = new Date();
@@ -38,6 +38,7 @@ function formatDateHeading(dateKey: string) {
   yesterday.setDate(today.getDate() - 1);
 
   const todayKey = formatLocalDateKey(today);
+
   const yesterdayKey = formatLocalDateKey(yesterday);
 
   if (dateKey === todayKey) {
@@ -49,18 +50,10 @@ function formatDateHeading(dateKey: string) {
   }
 
   return new Intl.DateTimeFormat("en-CA", {
-    weekday: "long",
+    weekday: "short",
     month: "short",
     day: "numeric",
   }).format(new Date(`${dateKey}T12:00:00`));
-}
-
-function formatLocalDateKey(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
 }
 
 function formatTime(value: string | null | undefined) {
@@ -68,10 +61,58 @@ function formatTime(value: string | null | undefined) {
     return null;
   }
 
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
   return new Intl.DateTimeFormat("en-CA", {
     hour: "numeric",
     minute: "2-digit",
-  }).format(new Date(value));
+  }).format(date);
+}
+
+function formatDuration(minutes: number | null | undefined) {
+  if (minutes === null || minutes === undefined) {
+    return null;
+  }
+
+  if (minutes < 60) {
+    return `${minutes} min`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+
+  const remaining = minutes % 60;
+
+  if (remaining === 0) {
+    return `${hours} hr`;
+  }
+
+  return `${hours} hr ${remaining} min`;
+}
+
+function formatCaptureTime(item: DocumentationItem) {
+  if (item.kind !== "capture" || !item.capture) {
+    return null;
+  }
+
+  const capture = item.capture;
+
+  const start = formatTime(capture.start_time);
+
+  const end = formatTime(capture.end_time);
+
+  if (start && end) {
+    return `${start} – ${end}`;
+  }
+
+  if (start) {
+    return start;
+  }
+
+  return formatDuration(capture.duration_minutes);
 }
 
 function getCompanyMap(companies: DocCompany[]) {
@@ -85,14 +126,23 @@ function groupDocumentation(documentation: DocumentationItem[]) {
     const existing = groups.get(item.date) ?? [];
 
     existing.push(item);
+
     groups.set(item.date, existing);
   }
 
   return Array.from(groups.entries());
 }
 
+function getCurrentMonthLabel() {
+  return new Intl.DateTimeFormat("en-CA", {
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
+}
+
 export default async function HomePage() {
   const fromDate = getMonthStartDateKey();
+
   const toDate = getMonthEndDateKey();
 
   const [metrics, streak, documentation, companies] = await Promise.all([
@@ -105,118 +155,82 @@ export default async function HomePage() {
     getCompanies(),
   ]);
 
-  const recentDocumentation = documentation.slice(0, 8);
+  const recentDocumentation = documentation.slice(0, 10);
 
   const companyMap = getCompanyMap(companies);
 
   const groupedDocumentation = groupDocumentation(recentDocumentation);
 
-  const metricItems = [
-    {
-      label: "Work Done",
-      value: metrics.workDone,
-      icon: BriefcaseBusiness,
-    },
-    {
-      label: "Client Visits",
-      value: metrics.clientVisits,
-      icon: MapPin,
-    },
-    {
-      label: "Equipment",
-      value: metrics.equipment,
-      icon: Package,
-    },
-    {
-      label: "Travel",
-      value: metrics.travel,
-      icon: Route,
-    },
-    {
-      label: "Expenses",
-      value: metrics.expenses,
-      icon: Receipt,
-    },
-  ];
-
   return (
-    <div className="mx-auto max-w-5xl space-y-10">
-      <section>
-        <p className="text-sm text-muted-foreground">This month</p>
+    <div className="mx-auto max-w-5xl">
+      <header className="flex items-start justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">DailyLogr</h1>
 
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">
-          Your documentation
-        </h1>
-
-        <p className="mt-2 text-sm text-muted-foreground">
-          Capture what you did. Build your history as you go.
-        </p>
-      </section>
-
-      <section>
-        <div className="inline-flex items-center gap-3 rounded-full border bg-card px-4 py-2.5">
-          <span className="text-lg font-semibold">{streak}</span>
-
-          <span className="text-sm text-muted-foreground">
-            day{streak === 1 ? "" : "s"} documented
-          </span>
+          <p className="mt-1 text-[15px] text-muted-foreground">
+            {getCurrentMonthLabel()}
+          </p>
         </div>
-      </section>
+      </header>
 
-      <section>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {metricItems.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <div key={item.label} className="rounded-2xl border bg-card p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <Icon className="h-4 w-4" />
-                  </div>
-
-                  <span className="text-2xl font-semibold tracking-tight">
-                    {item.value}
-                  </span>
-                </div>
-
-                <p className="mt-4 text-sm text-muted-foreground">
-                  {item.label}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-
-        {metrics.unclassified > 0 && (
-          <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-            <CircleAlert className="h-4 w-4" />
-
-            <span>
-              {metrics.unclassified} unclassified{" "}
-              {metrics.unclassified === 1 ? "capture" : "captures"}
-            </span>
-          </div>
-        )}
-      </section>
-
-      <section>
-        <div className="mb-5 flex items-center justify-between gap-4">
+      <section className="mt-6">
+        <Link
+          href="/progress"
+          className="group flex items-center justify-between gap-6 rounded-2xl border bg-card p-5 transition-colors hover:bg-accent/40"
+        >
           <div>
-            <h2 className="text-lg font-semibold tracking-tight">
-              Recent documentation
-            </h2>
+            <p className="text-[13px] text-muted-foreground">Current Streak</p>
 
-            <p className="mt-1 text-sm text-muted-foreground">
-              Your latest documented activity.
+            <p className="mt-1 text-3xl font-bold tracking-tight">
+              {streak}
+              <span className="ml-1 text-base font-medium">
+                {streak === 1 ? "day" : "days"}
+              </span>
             </p>
           </div>
 
+          <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-muted-foreground transition-colors group-hover:text-foreground">
+            View Progress
+            <ArrowRight className="h-4 w-4" />
+          </span>
+        </Link>
+      </section>
+
+      <section className="mt-8">
+        <div className="mb-3">
+          <h2 className="text-xl font-bold tracking-tight">Overview</h2>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <MetricCard label="Work Done" value={metrics.workDone} featured />
+
+          <MetricCard
+            label="Unclassified"
+            value={metrics.unclassified}
+            featured
+          />
+
+          <MetricCard label="Client Visits" value={metrics.clientVisits} />
+
+          <MetricCard label="Equipment" value={metrics.equipment} />
+
+          <MetricCard label="Travel" value={metrics.travel} />
+
+          <MetricCard label="Expenses" value={metrics.expenses} />
+        </div>
+      </section>
+
+      <section className="mt-10">
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <h2 className="text-xl font-bold tracking-tight">
+            Recent Documentation
+          </h2>
+
           <Link
             href="/history"
-            className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary hover:underline"
+            className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
           >
-            See all
+            See All
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -224,16 +238,16 @@ export default async function HomePage() {
         {recentDocumentation.length === 0 ? (
           <EmptyDocumentation />
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-7">
             {groupedDocumentation.map(([date, items]) => (
               <div key={date}>
-                <h3 className="mb-3 text-sm font-medium text-muted-foreground">
+                <p className="mb-3 text-xs font-semibold text-muted-foreground">
                   {formatDateHeading(date)}
-                </h3>
+                </p>
 
-                <div className="overflow-hidden rounded-2xl border bg-card">
-                  {items.map((item, index) => (
-                    <DocumentationRow
+                <div className="space-y-3">
+                  {items.map((item) => (
+                    <DocumentationCard
                       key={`${item.kind}-${item.id}`}
                       item={item}
                       companyName={
@@ -241,7 +255,6 @@ export default async function HomePage() {
                           ? (companyMap.get(item.companyId) ?? null)
                           : null
                       }
-                      showBorder={index > 0}
                     />
                   ))}
                 </div>
@@ -254,14 +267,40 @@ export default async function HomePage() {
   );
 }
 
-function DocumentationRow({
+function MetricCard({
+  label,
+  value,
+  featured = false,
+}: {
+  label: string;
+  value: number;
+  featured?: boolean;
+}) {
+  return (
+    <div
+      className={`flex flex-col justify-between rounded-2xl border bg-card p-5 ${
+        featured ? "min-h-36" : "min-h-28"
+      }`}
+    >
+      <p className="text-[13px] text-muted-foreground">{label}</p>
+
+      <p
+        className={`font-bold tracking-tight ${
+          featured ? "text-4xl" : "text-3xl"
+        }`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function DocumentationCard({
   item,
   companyName,
-  showBorder,
 }: {
   item: DocumentationItem;
   companyName: string | null;
-  showBorder: boolean;
 }) {
   if (item.kind === "capture" && item.capture) {
     const capture = item.capture;
@@ -274,55 +313,53 @@ function DocumentationRow({
       ? (typeLabels[capture.capture_type] ?? capture.capture_type)
       : "Unclassified";
 
-    const time =
-      formatTime(capture.start_time) ?? formatTime(capture.created_at);
+    const captureTime = formatCaptureTime(item);
 
     return (
       <Link
         href={`/document/${capture.id}`}
-        className={`group block p-4 transition-colors hover:bg-accent/40 sm:p-5 ${
-          showBorder ? "border-t" : ""
-        }`}
+        className="group block rounded-2xl border bg-card p-5 transition-colors hover:bg-accent/40"
       >
-        <div className="flex gap-4">
-          <div className="w-16 shrink-0 pt-0.5">
-            <p className="text-xs text-muted-foreground">{time}</p>
-          </div>
+        <div className="flex items-start justify-between gap-4">
+          <span className="text-xs font-semibold text-muted-foreground">
+            {typeLabel}
+          </span>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium text-primary">
-                {typeLabel}
-              </span>
-
-              {capture.source === "VOICE" && (
-                <span className="text-xs text-muted-foreground">Voice</span>
-              )}
-
-              {status === "INCOMPLETE" && (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
-                  Missing information
-                </span>
-              )}
-            </div>
-
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-6">
-              {capture.text || "No documentation text"}
-            </p>
-
-            {(companyName ||
-              capture.person_name ||
-              capture.client_organization) && (
-              <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                {companyName && <span>{companyName}</span>}
-
-                {capture.person_name && <span>{capture.person_name}</span>}
-
-                {capture.client_organization && (
-                  <span>{capture.client_organization}</span>
-                )}
-              </div>
+          <div className="flex shrink-0 items-center gap-3">
+            {capture.source === "VOICE" && (
+              <span className="text-xs text-muted-foreground">Voice</span>
             )}
+
+            <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
+          </div>
+        </div>
+
+        <p className="mt-3 line-clamp-3 whitespace-pre-wrap text-base leading-6">
+          {capture.text || "No capture text yet."}
+        </p>
+
+        {(companyName ||
+          capture.person_name ||
+          capture.client_organization ||
+          captureTime) && (
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            {companyName && <span>{companyName}</span>}
+
+            {capture.person_name && <span>{capture.person_name}</span>}
+
+            {capture.client_organization && (
+              <span>{capture.client_organization}</span>
+            )}
+
+            {captureTime && <span>{captureTime}</span>}
+          </div>
+        )}
+
+        {status === "INCOMPLETE" && (
+          <div className="mt-3">
+            <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-[11px] text-muted-foreground">
+              Missing information
+            </span>
 
             {missingFields.length > 0 && (
               <p className="mt-2 text-xs text-muted-foreground">
@@ -330,9 +367,7 @@ function DocumentationRow({
               </p>
             )}
           </div>
-
-          <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" />
-        </div>
+        )}
       </Link>
     );
   }
@@ -340,34 +375,32 @@ function DocumentationRow({
   if (item.entry) {
     const entry = item.entry;
 
+    const category =
+      typeLabels[entry.category] ?? entry.category ?? "Documentation";
+
     const time = formatTime(entry.created_at);
 
-    const category =
-      typeLabels[entry.category] ?? entry.category ?? "Legacy entry";
-
     return (
-      <div className={`p-4 sm:p-5 ${showBorder ? "border-t" : ""}`}>
-        <div className="flex gap-4">
-          <div className="w-16 shrink-0 pt-0.5">
-            <p className="text-xs text-muted-foreground">{time}</p>
-          </div>
+      <div className="rounded-2xl border bg-card p-5">
+        <div className="flex items-start justify-between gap-4">
+          <span className="text-xs font-semibold text-muted-foreground">
+            {category}
+          </span>
 
-          <div className="min-w-0 flex-1">
-            <span className="text-xs font-medium text-muted-foreground">
-              {category}
+          {time && (
+            <span className="shrink-0 text-xs text-muted-foreground">
+              {time}
             </span>
-
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-6">
-              {entry.text || entry.notes || "No documentation text"}
-            </p>
-
-            {companyName && (
-              <p className="mt-3 text-xs text-muted-foreground">
-                {companyName}
-              </p>
-            )}
-          </div>
+          )}
         </div>
+
+        <p className="mt-3 line-clamp-3 whitespace-pre-wrap text-base leading-6">
+          {entry.text || entry.notes || "No description yet."}
+        </p>
+
+        {companyName && (
+          <p className="mt-3 text-xs text-muted-foreground">{companyName}</p>
+        )}
       </div>
     );
   }
@@ -377,16 +410,16 @@ function DocumentationRow({
 
 function EmptyDocumentation() {
   return (
-    <div className="rounded-2xl border bg-card px-6 py-12 text-center">
-      <h3 className="font-medium">Nothing documented yet</h3>
+    <div className="rounded-2xl border bg-card p-6">
+      <h3 className="text-base font-semibold">Nothing documented yet</h3>
 
-      <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-        Capture something that happened today and it will appear here.
+      <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+        Document something that happened and it will appear here.
       </p>
 
       <Link
         href="/document"
-        className="mt-5 inline-flex h-10 items-center justify-center rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+        className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
       >
         Document something
       </Link>
