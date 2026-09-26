@@ -1,5 +1,13 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  BriefcaseBusiness,
+  CircleHelp,
+  MapPin,
+  Package,
+  Receipt,
+  Route,
+} from "lucide-react";
 import {
   getMonthEndDateKey,
   getMonthStartDateKey,
@@ -38,7 +46,6 @@ function formatDateHeading(dateKey: string) {
   yesterday.setDate(today.getDate() - 1);
 
   const todayKey = formatLocalDateKey(today);
-
   const yesterdayKey = formatLocalDateKey(yesterday);
 
   if (dateKey === todayKey) {
@@ -83,7 +90,6 @@ function formatDuration(minutes: number | null | undefined) {
   }
 
   const hours = Math.floor(minutes / 60);
-
   const remaining = minutes % 60;
 
   if (remaining === 0) {
@@ -101,7 +107,6 @@ function formatCaptureTime(item: DocumentationItem) {
   const capture = item.capture;
 
   const start = formatTime(capture.start_time);
-
   const end = formatTime(capture.end_time);
 
   if (start && end) {
@@ -126,7 +131,6 @@ function groupDocumentation(documentation: DocumentationItem[]) {
     const existing = groups.get(item.date) ?? [];
 
     existing.push(item);
-
     groups.set(item.date, existing);
   }
 
@@ -142,7 +146,6 @@ function getCurrentMonthLabel() {
 
 export default async function HomePage() {
   const fromDate = getMonthStartDateKey();
-
   const toDate = getMonthEndDateKey();
 
   const [metrics, streak, documentation, companies] = await Promise.all([
@@ -160,6 +163,45 @@ export default async function HomePage() {
   const companyMap = getCompanyMap(companies);
 
   const groupedDocumentation = groupDocumentation(recentDocumentation);
+
+  const metricItems = [
+    {
+      label: "Work Done",
+      value: metrics.workDone,
+      icon: BriefcaseBusiness,
+      featured: true,
+    },
+    {
+      label: "Unclassified",
+      value: metrics.unclassified,
+      icon: CircleHelp,
+      featured: true,
+    },
+    {
+      label: "Client Visits",
+      value: metrics.clientVisits,
+      icon: MapPin,
+      featured: false,
+    },
+    {
+      label: "Equipment",
+      value: metrics.equipment,
+      icon: Package,
+      featured: false,
+    },
+    {
+      label: "Travel",
+      value: metrics.travel,
+      icon: Route,
+      featured: false,
+    },
+    {
+      label: "Expenses",
+      value: metrics.expenses,
+      icon: Receipt,
+      featured: false,
+    },
+  ];
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -201,22 +243,55 @@ export default async function HomePage() {
           <h2 className="text-xl font-bold tracking-tight">Overview</h2>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <MetricCard label="Work Done" value={metrics.workDone} featured />
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+          {metricItems.map((item) => {
+            const Icon = item.icon;
 
-          <MetricCard
-            label="Unclassified"
-            value={metrics.unclassified}
-            featured
-          />
+            return (
+              <div
+                key={item.label}
+                className={`flex flex-col justify-between rounded-2xl border bg-card p-4 ${
+                  item.featured
+                    ? "min-h-36 lg:min-h-32"
+                    : "min-h-28 lg:min-h-32"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div
+                    className={`flex items-center justify-center rounded-xl bg-primary/10 text-primary ${
+                      item.featured ? "h-10 w-10 lg:h-9 lg:w-9" : "h-9 w-9"
+                    }`}
+                  >
+                    <Icon
+                      className={
+                        item.featured
+                          ? "h-[18px] w-[18px] lg:h-4 lg:w-4"
+                          : "h-4 w-4"
+                      }
+                    />
+                  </div>
 
-          <MetricCard label="Client Visits" value={metrics.clientVisits} />
+                  <span
+                    className={`font-semibold tracking-tight ${
+                      item.featured ? "text-3xl lg:text-2xl" : "text-2xl"
+                    }`}
+                  >
+                    {item.value}
+                  </span>
+                </div>
 
-          <MetricCard label="Equipment" value={metrics.equipment} />
-
-          <MetricCard label="Travel" value={metrics.travel} />
-
-          <MetricCard label="Expenses" value={metrics.expenses} />
+                <p
+                  className={`mt-4 text-muted-foreground ${
+                    item.featured
+                      ? "text-[15px] font-medium lg:text-sm lg:font-normal"
+                      : "text-sm"
+                  }`}
+                >
+                  {item.label}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -263,34 +338,6 @@ export default async function HomePage() {
           </div>
         )}
       </section>
-    </div>
-  );
-}
-
-function MetricCard({
-  label,
-  value,
-  featured = false,
-}: {
-  label: string;
-  value: number;
-  featured?: boolean;
-}) {
-  return (
-    <div
-      className={`flex flex-col justify-between rounded-2xl border bg-card p-5 ${
-        featured ? "min-h-36" : "min-h-28"
-      }`}
-    >
-      <p className="text-[13px] text-muted-foreground">{label}</p>
-
-      <p
-        className={`font-bold tracking-tight ${
-          featured ? "text-4xl" : "text-3xl"
-        }`}
-      >
-        {value}
-      </p>
     </div>
   );
 }
